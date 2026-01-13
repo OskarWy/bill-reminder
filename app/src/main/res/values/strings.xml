@@ -1,0 +1,59 @@
+<resources>
+    <string name="app_name">Bill Reminder</string>
+    <string name="title_main">Bill Reminders</string>
+    <string name="monthly_summary">This Month: %1$s (%2$d bills)</string>
+    <string name="empty_state_title">No bills yet</string>
+    <string name="empty_state_message">Tap + to add your first bill</string>
+
+    <string name="hint_bill_name">Bill Name</string>
+    <string name="hint_amount">Amount</string>
+    <string name="hint_date">Select Due Date</string>
+    <string name="hint_notes">Notes (Optional)</string>
+
+    <string name="btn_save">Save Bill</string>
+    <string name="title_edit_bill">Edit Bill</string>
+
+    <string name="error_name_required">Name is required</string>
+    <string name="error_amount_required">Valid amount required</string>
+    <string name="confirm_delete">Delete this bill?</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="cancel">Cancel</string>
+
+    <string name="label_frequency">Repeats:</string>
+    <string name="freq_once">One-time</string>
+    <string name="freq_monthly">Every Month</string>
+    <string name="freq_quarterly">Every 3 Months</string>
+    <string name="freq_half_year">Every 6 Months</string>
+    <string name="freq_yearly">Every Year</string>
+    <string name="label_category">Category</string>
+    <string name="btn_change_date">Change</string>
+    <string name="btn_add_bill">Add Bill</string>
+
+    <string name="dialog_recurring_title">Bill Paid?</string>
+    <string name="dialog_recurring_msg">This is a recurring bill. What do you want to do?</string>
+    <string name="action_renew">Mark Paid &amp; Renew (+%d months)</string>
+    <string name="action_delete">Delete Forever</string>
+    <string name="msg_renewed">Bill updated for next due date!</string>
+
+    <string name="channel_name">Bill Reminders</string>
+    <string name="channel_desc">Notifications for upcoming bills</string>
+    <string name="notification_title">Bill Due Soon: %1$s</string>
+    <string name="notification_content">Amount: %1$s. Pay before it\'s late!</string>
+    <string name="title_stats">Statistics</string>
+
+    <string name="cat_utilities">Utilities</string>
+    <string name="cat_subscriptions">Subscriptions</string>
+    <string name="cat_insurance">Insurance</string>
+    <string name="cat_rent">Rent/Mortgage</string>
+    <string name="cat_other">Other</string>
+
+    <string-array name="categories_array">
+        <item>@string/cat_utilities</item>
+        <item>@string/cat_subscriptions</item>
+        <item>@string/cat_insurance</item>
+        <item>@string/cat_rent</item>
+        <item>@string/cat_other</item>
+    </string-array>
+    <string name="total_summary">Total: %1$s</string>
+</resources>

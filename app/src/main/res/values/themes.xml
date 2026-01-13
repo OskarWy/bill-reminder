@@ -1,0 +1,9 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <style name="Theme.BillReminder" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/bill_subscriptions</item>
+        <item name="colorSecondary">@color/bill_utilities</item>
+        <item name="android:windowBackground">@color/background_light</item>
+        <item name="android:statusBarColor">@color/background_light</item>
+        <item name="android:windowLightStatusBar">true</item>
+    </style>
+</resources>

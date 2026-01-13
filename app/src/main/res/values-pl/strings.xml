@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Przypomnienie o Rachunkach</string>
+    <string name="title_main">Moje Rachunki</string>
+    <string name="monthly_summary">Ten miesiąc: %1$s (%2$d rach.)</string>
+    <string name="empty_state_title">Brak rachunków</string>
+    <string name="empty_state_message">Kliknij +, aby dodać pierwszy rachunek</string>
+
+    <string name="hint_bill_name">Nazwa rachunku</string>
+    <string name="hint_amount">Kwota</string>
+    <string name="hint_date">Data płatności</string>
+    <string name="hint_notes">Notatki (Opcjonalne)</string>
+
+    <string name="btn_save">Zapisz</string>
+    <string name="title_edit_bill">Edytuj Rachunek</string>
+
+    <string name="error_name_required">Nazwa jest wymagana</string>
+    <string name="error_amount_required">Podaj poprawną kwotę</string>
+    <string name="confirm_delete">Usunąć ten rachunek?</string>
+    <string name="yes">Tak</string>
+    <string name="no">Nie</string>
+    <string name="cancel">Anuluj</string>
+
+    <string name="label_frequency">Powtarzanie:</string>
+    <string name="freq_once">Jednorazowo</string>
+    <string name="freq_monthly">Co Miesiąc</string>
+    <string name="freq_quarterly">Co 3 Miesiące</string>
+    <string name="freq_half_year">Co Pół Roku</string>
+    <string name="freq_yearly">Co Rok</string>
+    <string name="label_category">Kategoria</string>
+    <string name="btn_change_date">Zmień</string>
+    <string name="btn_add_bill">Dodaj rachunek</string>
+
+    <string name="dialog_recurring_title">Rachunek Opłacony?</string>
+    <string name="dialog_recurring_msg">To jest rachunek cykliczny. Co chcesz zrobić?</string>
+    <string name="action_renew">Opłacony (Przełóż o +%d mies.)</string>
+    <string name="action_delete">Usuń całkowicie</string>
+    <string name="msg_renewed">Termin przełożony na następny cykl!</string>
+
+    <string name="channel_name">Powiadomienia</string>
+    <string name="channel_desc">Przypomnienia o płatnościach</string>
+    <string name="notification_title">Zapłać rachunek: %1$s</string>
+    <string name="notification_content">Kwota: %1$s. Zapłać w terminie!</string>
+    <string name="title_stats">Statystyki</string>
+
+    <string name="cat_utilities">Rachunki (Prąd/Gaz)</string>
+    <string name="cat_subscriptions">Subskrypcje</string>
+    <string name="cat_insurance">Ubezpieczenia</string>
+    <string name="cat_rent">Czynsz/Kredyt</string>
+    <string name="cat_other">Inne</string>
+
+    <string-array name="categories_array">
+        <item>@string/cat_utilities</item>
+        <item>@string/cat_subscriptions</item>
+        <item>@string/cat_insurance</item>
+        <item>@string/cat_rent</item>
+        <item>@string/cat_other</item>
+    </string-array>
+    <string name="total_summary">Suma: %1$s</string>
+</resources>
