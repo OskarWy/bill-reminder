@@ -18,7 +18,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.os.LocaleListCompat
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -56,11 +55,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        setSupportActionBar(binding.toolbar) // Ważne dla menu języka!
-
-        // Jeśli nie dodałeś Toolbar w XML, system użyje domyślnego ActionBara.
-        // Jeśli masz customowy layout bez toolbara, kod poniżej może wymagać korekty w activity_main.xml.
-        // Zakładamy standardowy AppBarLayout z poprzedniego kodu.
+        setSupportActionBar(binding.toolbar)
 
         setupRecyclerView()
         setupViewModel()
@@ -73,7 +68,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // --- MENU JĘZYKA ---
+    // --- MENU ---
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.main_menu, menu)
         return true
@@ -81,8 +76,12 @@ class MainActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
+            R.id.action_history -> {
+                val intent = Intent(this, HistoryActivity::class.java)
+                startActivity(intent)
+                true
+            }
             R.id.action_stats -> {
-                // NOWE: Uruchamiamy ekran statystyk
                 val intent = Intent(this, StatsActivity::class.java)
                 startActivity(intent)
                 true
@@ -95,6 +94,10 @@ class MainActivity : AppCompatActivity() {
                 setAppLocale("pl")
                 true
             }
+            R.id.action_subscriptions -> {
+                startActivity(Intent(this, SubscriptionsActivity::class.java))
+                true
+            }
             else -> super.onOptionsItemSelected(item)
         }
     }
@@ -103,8 +106,8 @@ class MainActivity : AppCompatActivity() {
         val appLocale = LocaleListCompat.forLanguageTags(language)
         AppCompatDelegate.setApplicationLocales(appLocale)
     }
-    // -------------------
 
+    // --- LOGIKA LISTY I SWIPE ---
     private fun setupRecyclerView() {
         adapter = BillAdapter { bill ->
             val intent = Intent(this, AddEditBillActivity::class.java)
@@ -114,7 +117,9 @@ class MainActivity : AppCompatActivity() {
         binding.recyclerView.adapter = adapter
         binding.recyclerView.layoutManager = LinearLayoutManager(this)
 
-        // LOGIKA SWIPE (PRZESUWANIA) - TUTAJ JEST MAGIA ODNAWIANIA
+        // Usunąłem wyłączanie animacji, żeby ruchy były płynne
+        // binding.recyclerView.itemAnimator = null
+
         ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
             override fun onMove(rv: RecyclerView, vh: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder) = false
 
@@ -122,29 +127,52 @@ class MainActivity : AppCompatActivity() {
                 val position = viewHolder.adapterPosition
                 val bill = adapter.currentList[position]
 
+                // --- TO JEST KLUCZ DO SUKCESU ---
+                // Natychmiast "cofamy" swipe wizualnie. Element wraca na miejsce.
+                // Dzięki temu nie ma "dziury" podczas czytania Dialogu.
+                adapter.notifyItemChanged(position)
+                // --------------------------------
+
                 if (bill.frequency > 0) {
-                    // RACHUNEK CYKLICZNY - Pytamy czy odnowić
+                    // --- A. RACHUNEK CYKLICZNY ---
                     AlertDialog.Builder(this@MainActivity)
                         .setTitle(getString(R.string.dialog_recurring_title))
                         .setMessage(getString(R.string.dialog_recurring_msg))
                         .setPositiveButton(getString(R.string.action_renew, bill.frequency)) { _, _ ->
                             renewBill(bill)
-                            adapter.notifyItemChanged(position) // Odśwież widok
+                            // Nie musimy już robić notifyItemChanged tutaj, bo zrobiliśmy to na początku
                         }
                         .setNegativeButton(getString(R.string.action_delete)) { _, _ ->
                             billViewModel.delete(bill)
                         }
                         .setNeutralButton(getString(R.string.cancel)) { _, _ ->
-                            adapter.notifyItemChanged(position) // Cofnij przesunięcie
+                            // Anulowanie nic nie musi robić, bo element już wrócił na miejsce
                         }
                         .setCancelable(false)
                         .show()
                 } else {
-                    // RACHUNEK JEDNORAZOWY - Usuwamy
+                    // --- B. RACHUNEK JEDNORAZOWY ---
                     AlertDialog.Builder(this@MainActivity)
-                        .setTitle(getString(R.string.confirm_delete))
-                        .setPositiveButton(getString(R.string.yes)) { _, _ -> billViewModel.delete(bill) }
-                        .setNegativeButton(getString(R.string.no)) { _, _ -> adapter.notifyItemChanged(position) }
+                        .setTitle(getString(R.string.dialog_one_time_title))
+                        .setMessage(getString(R.string.dialog_one_time_msg))
+
+                        // Zapłacono -> Historia + Usuń z listy
+                        .setPositiveButton(getString(R.string.action_paid_history)) { _, _ ->
+                            billViewModel.addToHistory(bill)
+                            billViewModel.delete(bill)
+                            Toast.makeText(this@MainActivity, getString(R.string.msg_renewed), Toast.LENGTH_SHORT).show()
+                        }
+
+                        // Usuń trwale
+                        .setNegativeButton(getString(R.string.action_just_delete)) { _, _ ->
+                            billViewModel.delete(bill)
+                        }
+
+                        // Anuluj
+                        .setNeutralButton(getString(R.string.cancel)) { _, _ ->
+                            // Nic nie robimy, element już jest na miejscu
+                        }
+                        .setCancelable(false)
                         .show()
                 }
             }
@@ -152,17 +180,27 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun renewBill(bill: Bill) {
+        billViewModel.addToHistory(bill)
+
         val calendar = Calendar.getInstance()
+        val today = System.currentTimeMillis()
         calendar.timeInMillis = bill.dueDate
-        // Dodaj liczbę miesięcy z pola frequency
+
+        // 1. Zawsze dodaj jeden cykl
         calendar.add(Calendar.MONTH, bill.frequency)
 
-        // Stwórz kopię rachunku z nową datą
-        val updatedBill = bill.copy(dueDate = calendar.timeInMillis)
+        // 2. Jeśli nadal zaległy, dodawaj aż dogonisz dzisiaj
+        while (calendar.timeInMillis < today) {
+            calendar.add(Calendar.MONTH, bill.frequency)
+        }
 
-        // Zapisz w bazie (nadpisz stary)
+        val updatedBill = bill.copy(dueDate = calendar.timeInMillis)
         billViewModel.update(updatedBill)
-        Toast.makeText(this, getString(R.string.msg_renewed), Toast.LENGTH_SHORT).show()
+
+        val dateFormat = java.text.SimpleDateFormat("dd MMM yyyy", java.util.Locale.getDefault())
+        val newDateStr = dateFormat.format(java.util.Date(calendar.timeInMillis))
+
+        Toast.makeText(this, "${getString(R.string.msg_renewed)} -> $newDateStr", Toast.LENGTH_LONG).show()
     }
 
     private fun setupViewModel() {
@@ -172,15 +210,11 @@ class MainActivity : AppCompatActivity() {
         }
 
         billViewModel.monthlySummary.observe(this) { (sum, count) ->
-            // --- POPRAWKA WALUTY "NA TWARDO" ---
             val currentLang = AppCompatDelegate.getApplicationLocales().get(0)?.language
-
-            // Jeśli polski -> wymuś Polskę (zł), w przeciwnym razie USA ($)
             val formatLocale = if (currentLang == "pl") Locale("pl", "PL") else Locale.US
             val currencyFormat = NumberFormat.getCurrencyInstance(formatLocale)
 
             binding.tvMonthlySummary.text = getString(R.string.monthly_summary, currencyFormat.format(sum), count)
-            // ------------------------------------
         }
     }
 

@@ -22,6 +22,10 @@ interface BillDao {
     @Query("SELECT category, SUM(amount) as totalAmount FROM bills GROUP BY category")
     fun getCategoryStats(): LiveData<List<CategoryStat>>
 
+    // Pobierz tylko cykliczne, posortowane po nazwie A-Z
+    @Query("SELECT * FROM bills WHERE frequency > 0 ORDER BY name ASC")
+    fun getRecurringBills(): LiveData<List<Bill>>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(bill: Bill)
 

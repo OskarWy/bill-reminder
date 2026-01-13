@@ -29,13 +29,25 @@
         <activity
             android:name=".ui.AddEditBillActivity"
             android:exported="false"
+            android:label="@string/app_name"
             android:parentActivityName=".ui.MainActivity"
             android:windowSoftInputMode="adjustResize" />
 
         <activity
             android:name=".ui.StatsActivity"
             android:exported="false"
+            android:label="@string/title_stats"
             android:parentActivityName=".ui.MainActivity" />
+
+        <activity
+            android:name=".ui.HistoryActivity"
+            android:label="@string/title_history"
+            android:parentActivityName=".ui.MainActivity" />
+
+        <activity
+            android:name=".ui.SubscriptionsActivity"
+            android:label="@string/title_fixed_costs"
+            android:parentActivityName=".ui.MainActivity"/>
 
     </application>
 

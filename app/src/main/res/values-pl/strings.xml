@@ -8,7 +8,7 @@
 
     <string name="hint_bill_name">Nazwa rachunku</string>
     <string name="hint_amount">Kwota</string>
-    <string name="hint_date">Data płatności</string>
+    <string name="hint_date">Data najbliższej płatności</string>
     <string name="hint_notes">Notatki (Opcjonalne)</string>
 
     <string name="btn_save">Zapisz</string>
@@ -37,6 +37,19 @@
     <string name="action_delete">Usuń całkowicie</string>
     <string name="msg_renewed">Termin przełożony na następny cykl!</string>
 
+    <string name="dialog_one_time_title">Rachunek Jednorazowy</string>
+    <string name="dialog_one_time_msg">Oznaczyć jako opłacony (dodaj do historii) czy usunąć bez śladu?</string>
+    <string name="action_paid_history">Zapłacono</string>
+    <string name="action_just_delete">Usuń trwale</string>
+
+    <string name="title_fixed_costs">Opłaty Stałe</string>
+    <string name="label_fixed_monthly">Stałe koszty miesięczne</string>
+
+    <string name="menu_history">Historia</string>
+    <string name="menu_stats">Statystyki</string>
+    <string name="menu_lang_en">Language: English</string>
+    <string name="menu_lang_pl">Język: Polski</string>
+
     <string name="channel_name">Powiadomienia</string>
     <string name="channel_desc">Przypomnienia o płatnościach</string>
     <string name="notification_title">Zapłać rachunek: %1$s</string>
@@ -48,6 +61,15 @@
     <string name="cat_insurance">Ubezpieczenia</string>
     <string name="cat_rent">Czynsz/Kredyt</string>
     <string name="cat_other">Inne</string>
+
+    <string name="section_monthly">Miesięczne</string>
+    <string name="section_quarterly">Kwartalne (Co 3 mies.)</string>
+    <string name="section_half_yearly">Półroczne (Co 6 mies.)</string>
+    <string name="section_yearly">Roczne</string>
+    <string name="label_monthly_avg">Szacowany koszt średniomiesięczny</string>
+    <string name="title_history">Historia Płatności</string>
+    <string name="history_empty">Brak historii</string>
+    <string name="history_paid_on">Opłacono: %s</string>
 
     <string-array name="categories_array">
         <item>@string/cat_utilities</item>

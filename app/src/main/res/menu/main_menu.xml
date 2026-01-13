@@ -3,17 +3,31 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
+        android:id="@+id/action_history"
+        android:icon="@drawable/ic_history_outlined"
+        android:title="@string/menu_history"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/action_subscriptions"
+        android:icon="@drawable/ic_card_outlined"
+        android:title="@string/title_fixed_costs"
+        app:showAsAction="always" />
+
+    <item
         android:id="@+id/action_stats"
-        android:icon="@android:drawable/ic_menu_sort_by_size"
-        android:title="@string/title_stats"
-        app:showAsAction="ifRoom" />
+        android:icon="@drawable/ic_stats_outlined"
+        android:title="@string/menu_stats"
+        app:showAsAction="always" />
 
     <item
         android:id="@+id/action_language_en"
-        android:title="English"
+        android:title="@string/menu_lang_en"
         app:showAsAction="never" />
+
     <item
         android:id="@+id/action_language_pl"
-        android:title="Polski"
+        android:title="@string/menu_lang_pl"
         app:showAsAction="never" />
+
 </menu>
