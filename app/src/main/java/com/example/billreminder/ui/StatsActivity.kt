@@ -73,11 +73,8 @@ class StatsActivity : AppCompatActivity() {
 
             stats.forEach { stat ->
                 if (stat.totalAmount > 0) {
-                    // --- ZMIANA 1: TŁUMACZENIE NAZWY ---
-                    // Tutaj używamy funkcji pomocniczej, żeby zamienić tekst z bazy na tekst z pliku językowego
                     val translatedName = getLocalizedCategoryName(stat.category)
 
-                    // Używamy translatedName zamiast stat.category
                     entries.add(PieEntry(stat.totalAmount.toFloat(), translatedName))
                     totalSum += stat.totalAmount
 
@@ -127,8 +124,6 @@ class StatsActivity : AppCompatActivity() {
         }
     }
 
-    // --- ZMIANA 2: FUNKCJA TŁUMACZĄCA ---
-    // Ta funkcja sprawdza nazwę z bazy i zwraca odpowiedni string z zasobów (PL lub EN)
     private fun getLocalizedCategoryName(rawName: String): String {
         return when (rawName) {
             "Subscriptions", "Subskrypcje" -> getString(R.string.cat_subscriptions)
@@ -141,9 +136,13 @@ class StatsActivity : AppCompatActivity() {
     }
 
     private fun updateTotalSumText(sum: Double) {
-        val currentLang = AppCompatDelegate.getApplicationLocales().get(0)?.language
-        val formatLocale = if (currentLang == "pl") Locale("pl", "PL") else Locale.US
+        // --- POPRAWKA WALUTY ---
+        val appLocales = AppCompatDelegate.getApplicationLocales()
+        val currentLocale = if (!appLocales.isEmpty) appLocales.get(0) else Locale.getDefault()
+        val isPolish = currentLocale?.language == "pl"
+        val formatLocale = if (isPolish) Locale("pl", "PL") else Locale.US
         val currencyFormat = NumberFormat.getCurrencyInstance(formatLocale)
+        // -----------------------
 
         binding.tvTotalExpenses.text = getString(R.string.total_summary, currencyFormat.format(sum))
     }

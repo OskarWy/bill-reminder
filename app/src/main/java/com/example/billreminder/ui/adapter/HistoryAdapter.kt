@@ -28,19 +28,19 @@ class HistoryAdapter : ListAdapter<PaymentHistory, HistoryAdapter.HistoryViewHol
         fun bind(item: PaymentHistory) {
             binding.tvHistoryName.text = item.billName
 
-            // 1. Sprawdzamy język aplikacji (PL czy EN)
-            val currentLang = AppCompatDelegate.getApplicationLocales().get(0)?.language
-            val formatLocale = if (currentLang == "pl") Locale("pl", "PL") else Locale.US
+            // --- POPRAWKA JĘZYKA (Sprawdzamy telefon) ---
+            val appLocales = AppCompatDelegate.getApplicationLocales()
+            val currentLocale = if (!appLocales.isEmpty) appLocales.get(0) else Locale.getDefault()
+            val isPolish = currentLocale?.language == "pl"
+            val formatLocale = if (isPolish) Locale("pl", "PL") else Locale.US
+            // --------------------------------------------
 
-            // 2. Formatujemy datę (żeby było "Jan" dla EN i "Sty" dla PL)
+            // Data
             val dateFormat = SimpleDateFormat("dd MMM yyyy, HH:mm", formatLocale)
             val dateStr = dateFormat.format(Date(item.paymentDate))
-
-            // 3. TŁUMACZENIE: Tu była zmiana!
-            // Zamiast "Zapłacono: ...", pobieramy tekst z pliku strings.xml
             binding.tvHistoryDate.text = binding.root.context.getString(R.string.history_paid_on, dateStr)
 
-            // 4. Formatowanie waluty (zł vs $)
+            // Waluta (PLN/USD)
             val currencyFormat = NumberFormat.getCurrencyInstance(formatLocale)
             binding.tvHistoryAmount.text = currencyFormat.format(item.amount)
         }

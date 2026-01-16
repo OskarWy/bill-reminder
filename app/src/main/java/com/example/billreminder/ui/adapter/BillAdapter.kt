@@ -2,6 +2,7 @@ package com.example.billreminder.ui.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -39,40 +40,49 @@ class BillAdapter(private val onItemClick: (Bill) -> Unit) : ListAdapter<Bill, B
             binding.apply {
                 tvBillName.text = bill.name
 
-                // 1. Waluta i Język
-                val currentLang = androidx.appcompat.app.AppCompatDelegate.getApplicationLocales().get(0)?.language
-                val formatLocale = if (currentLang == "pl") Locale("pl", "PL") else Locale.US
+                // --- 1. NAPRAWA LOGIKI JĘZYKA I WALUTY ---
+                // Pobieramy ustawienia języka z aplikacji
+                val appLocales = AppCompatDelegate.getApplicationLocales()
+
+                // Jeśli lista jest pusta (start apki), bierzemy język systemu telefonu.
+                // Jeśli nie jest pusta (użytkownik wybrał w menu), bierzemy ten wybrany.
+                val currentLocale = if (!appLocales.isEmpty) appLocales.get(0) else Locale.getDefault()
+
+                // Sprawdzamy czy to polski
+                val isPolish = currentLocale?.language == "pl"
+
+                // Ustawiamy formatowanie (PLN dla polskiego, USD dla reszty)
+                val formatLocale = if (isPolish) Locale("pl", "PL") else Locale.US
                 val currencyFormat = NumberFormat.getCurrencyInstance(formatLocale)
                 tvBillAmount.text = currencyFormat.format(bill.amount)
+                // -----------------------------------------
 
                 // 2. Formatowanie Daty
                 val dateFormat = SimpleDateFormat("MMM dd, yyyy", formatLocale)
 
-                // --- NOWE: SPRAWDZANIE CZY PO TERMINIE ---
+                // 3. Sprawdzanie terminów
                 val today = System.currentTimeMillis()
 
                 if (bill.dueDate < today) {
-                    // Termin minął! Kolor CZERWONY + Wykrzyknik
+                    // Termin minął! Kolor CZERWONY
                     tvBillDate.setTextColor(ContextCompat.getColor(root.context, android.R.color.holo_red_dark))
 
-                    tvBillDate.text = if (currentLang == "pl")
+                    tvBillDate.text = if (isPolish)
                         "! ZALEGŁE: ${dateFormat.format(Date(bill.dueDate))}"
                     else
                         "! OVERDUE: ${dateFormat.format(Date(bill.dueDate))}"
 
                 } else {
-                    // Termin w przyszłości - Kolor normalny (szary)
-                    // WAŻNE: Musimy przywrócić szary, bo RecyclerView "recyklinguje" widoki i mogą zostać czerwone
+                    // Termin w przyszłości - Kolor szary
                     tvBillDate.setTextColor(ContextCompat.getColor(root.context, R.color.text_secondary))
 
-                    tvBillDate.text = if (currentLang == "pl")
+                    tvBillDate.text = if (isPolish)
                         "Termin: ${dateFormat.format(Date(bill.dueDate))}"
                     else
                         "Due: ${dateFormat.format(Date(bill.dueDate))}"
                 }
-                // -----------------------------------------
 
-                // 3. Kolory kategorii
+                // 4. Kolory kategorii
                 val colorRes = when (bill.category) {
                     "Subscriptions", "Subskrypcje" -> R.color.bill_subscriptions
                     "Utilities", "Rachunki (Prąd/Gaz)" -> R.color.bill_utilities

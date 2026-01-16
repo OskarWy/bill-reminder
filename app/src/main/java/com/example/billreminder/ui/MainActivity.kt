@@ -210,9 +210,16 @@ class MainActivity : AppCompatActivity() {
         }
 
         billViewModel.monthlySummary.observe(this) { (sum, count) ->
-            val currentLang = AppCompatDelegate.getApplicationLocales().get(0)?.language
-            val formatLocale = if (currentLang == "pl") Locale("pl", "PL") else Locale.US
+            // --- POPRAWKA: Prawidłowe wykrywanie języka ---
+            val appLocales = AppCompatDelegate.getApplicationLocales()
+
+            // 1. Sprawdzamy: Czy wybrano język w menu? Jeśli nie, bierzemy język telefonu.
+            val currentLocale = if (!appLocales.isEmpty) appLocales.get(0) else Locale.getDefault()
+
+            // 2. Jeśli wynik to polski -> ZŁ, w przeciwnym razie -> USD
+            val formatLocale = if (currentLocale?.language == "pl") Locale("pl", "PL") else Locale.US
             val currencyFormat = NumberFormat.getCurrencyInstance(formatLocale)
+            // ----------------------------------------------
 
             binding.tvMonthlySummary.text = getString(R.string.monthly_summary, currencyFormat.format(sum), count)
         }
