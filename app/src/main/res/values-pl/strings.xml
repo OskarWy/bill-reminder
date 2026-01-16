@@ -52,8 +52,10 @@
 
     <string name="channel_name">Powiadomienia</string>
     <string name="channel_desc">Przypomnienia o płatnościach</string>
-    <string name="notification_title">Zapłać rachunek: %1$s</string>
-    <string name="notification_content">Kwota: %1$s. Zapłać w terminie!</string>
+
+    <string name="notification_title">Przypomnienie: %s</string>
+    <string name="notification_content">Kwota do zapłaty: %s</string>
+
     <string name="title_stats">Statystyki</string>
 
     <string name="cat_utilities">Rachunki (Prąd/Gaz)</string>

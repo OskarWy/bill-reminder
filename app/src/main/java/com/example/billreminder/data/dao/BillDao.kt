@@ -4,7 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.example.billreminder.data.model.Bill
 
-// 1. Dodajemy małą klasę "pojemnik" na wynik statystyk (poza interfejsem)
+// 1. Klasa pomocnicza do statystyk
 data class CategoryStat(
     val category: String,
     val totalAmount: Double
@@ -12,17 +12,24 @@ data class CategoryStat(
 
 @Dao
 interface BillDao {
+    // Używane przez ViewModel (obserwuje zmiany na żywo)
     @Query("SELECT * FROM bills ORDER BY dueDate ASC")
     fun getAllBills(): LiveData<List<Bill>>
+
+    // --- TO JEST TA BRAKUJĄCA FUNKCJA DLA WORKERA ---
+    // Zwraca zwykłą listę (nie LiveData), żeby Worker mógł ją przetworzyć w tle
+    @Query("SELECT * FROM bills ORDER BY dueDate ASC")
+    fun getAllBillsSync(): List<Bill>
+    // ------------------------------------------------
 
     @Query("SELECT * FROM bills WHERE dueDate >= :start AND dueDate <= :end")
     suspend fun getBillsInRange(start: Long, end: Long): List<Bill>
 
-    // 2. NOWE: To zapytanie grupuje rachunki po kategorii i sumuje ich kwoty
+    // Statystyki kategorii
     @Query("SELECT category, SUM(amount) as totalAmount FROM bills GROUP BY category")
     fun getCategoryStats(): LiveData<List<CategoryStat>>
 
-    // Pobierz tylko cykliczne, posortowane po nazwie A-Z
+    // Pobierz tylko cykliczne
     @Query("SELECT * FROM bills WHERE frequency > 0 ORDER BY name ASC")
     fun getRecurringBills(): LiveData<List<Bill>>
 

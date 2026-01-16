@@ -226,12 +226,35 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupNotifications() {
-        createNotificationChannel()
-        val workRequest = PeriodicWorkRequestBuilder<BillReminderWorker>(24, TimeUnit.HOURS)
-            .setInitialDelay(15, TimeUnit.MINUTES)
+        // 1. Obliczamy ile czasu zostało do najbliższej 8:00 rano
+        val calendar = Calendar.getInstance()
+        val now = System.currentTimeMillis()
+
+        // Ustawiamy godzinę na 8:00:00
+        calendar.set(Calendar.HOUR_OF_DAY, 8)
+        calendar.set(Calendar.MINUTE, 0)
+        calendar.set(Calendar.SECOND, 0)
+        calendar.set(Calendar.MILLISECOND, 0)
+
+        // Jeśli 8:00 już była dzisiaj, to ustawiamy na jutro na 8:00
+        if (calendar.timeInMillis < now) {
+            calendar.add(Calendar.DAY_OF_MONTH, 1)
+        }
+
+        val delay = calendar.timeInMillis - now
+
+        // 2. Tworzymy żądanie z opóźnieniem
+        val workRequest = PeriodicWorkRequestBuilder<com.example.billreminder.worker.BillReminderWorker>(
+            24, java.util.concurrent.TimeUnit.HOURS
+        )
+            .setInitialDelay(delay, java.util.concurrent.TimeUnit.MILLISECONDS) // <--- TO JEST KLUCZ
             .build()
-        WorkManager.getInstance(this).enqueueUniquePeriodicWork(
-            "BillReminderWork", ExistingPeriodicWorkPolicy.KEEP, workRequest
+
+        // 3. Kolejkujemy pracę (UniqueWork pilnuje, żeby nie dublować zadań)
+        androidx.work.WorkManager.getInstance(this).enqueueUniquePeriodicWork(
+            "BillReminderWork",
+            androidx.work.ExistingPeriodicWorkPolicy.UPDATE, // UPDATE - zaktualizuje czas jeśli zmienisz kod
+            workRequest
         )
     }
 

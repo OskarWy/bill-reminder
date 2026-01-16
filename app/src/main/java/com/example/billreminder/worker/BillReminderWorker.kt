@@ -22,12 +22,19 @@ class BillReminderWorker(context: Context, params: WorkerParameters) : Coroutine
         val database = BillDatabase.getDatabase(applicationContext)
         val dao = database.billDao()
 
-        val now = System.currentTimeMillis()
-        val threeDaysInMillis = 3 * 24 * 60 * 60 * 1000L
-        val future = now + threeDaysInMillis
+        // 1. Pobieramy wszystkie rachunki (najbezpieczniejsza opcja)
+        val allBills = dao.getAllBillsSync()
 
-        // Pobierz rachunki, które są przeterminowane lub płatne w ciągu 3 dni
-        val upcomingBills = dao.getBillsInRange(now - (24 * 60 * 60 * 1000L), future)
+        val now = System.currentTimeMillis()
+        // 3 dni w milisekundach
+        val threeDaysInMillis = 3L * 24 * 60 * 60 * 1000L
+
+        // 2. Filtrujemy w kodzie (to daje nam pełną kontrolę)
+        val upcomingBills = allBills.filter { bill ->
+            val diff = bill.dueDate - now
+            // Warunek: Termin jest w ciągu 3 dni LUB termin minął (diff < 0)
+            diff <= threeDaysInMillis
+        }
 
         if (upcomingBills.isNotEmpty()) {
             upcomingBills.forEach { bill ->
@@ -39,25 +46,30 @@ class BillReminderWorker(context: Context, params: WorkerParameters) : Coroutine
     }
 
     private fun showNotification(id: Int, name: String, amount: Double) {
+        // Sprawdzenie uprawnień (wymagane od Android 13)
         if (ActivityCompat.checkSelfPermission(applicationContext, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
             return
         }
 
+        // Kliknięcie w powiadomienie otwiera apkę
         val intent = Intent(applicationContext, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         }
         val pendingIntent = PendingIntent.getActivity(applicationContext, 0, intent, PendingIntent.FLAG_IMMUTABLE)
 
+        // Formatowanie waluty (tu używamy domyślnej systemowej, bo Worker działa w tle)
         val currencyFormat = NumberFormat.getCurrencyInstance()
         val formattedAmount = currencyFormat.format(amount)
 
         val builder = NotificationCompat.Builder(applicationContext, "bill_channel_id")
-            .setSmallIcon(R.drawable.ic_launcher_foreground) // Upewnij się, że masz ikonę
+            // --- TU JEST ZMIANA NA PROFESJONALNĄ IKONĘ ---
+            .setSmallIcon(R.drawable.ic_card_outlined)
+            // ---------------------------------------------
             .setContentTitle(applicationContext.getString(R.string.notification_title, name))
             .setContentText(applicationContext.getString(R.string.notification_content, formattedAmount))
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setContentIntent(pendingIntent)
-            .setAutoCancel(true)
+            .setAutoCancel(true) // Powiadomienie znika po kliknięciu
 
         NotificationManagerCompat.from(applicationContext).notify(id, builder.build())
     }
