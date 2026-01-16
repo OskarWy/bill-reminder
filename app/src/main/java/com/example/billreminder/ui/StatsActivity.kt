@@ -2,6 +2,7 @@ package com.example.billreminder.ui
 
 import android.graphics.Color
 import android.os.Bundle
+import android.view.View // <--- WAŻNY IMPORT DO VISIBILITY
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
@@ -89,7 +90,12 @@ class StatsActivity : AppCompatActivity() {
                 }
             }
 
-            if (entries.isNotEmpty()) {
+            // --- TU JEST KLUCZOWA ZMIANA ---
+            if (entries.isNotEmpty() && totalSum > 0) {
+                // SĄ DANE: Pokaż wykres, ukryj napis "Brak danych"
+                binding.pieChart.visibility = View.VISIBLE
+                binding.tvNoData.visibility = View.GONE
+
                 val dataSet = PieDataSet(entries, "")
                 dataSet.colors = colors
 
@@ -117,7 +123,9 @@ class StatsActivity : AppCompatActivity() {
                 binding.pieChart.data = data
                 binding.pieChart.invalidate()
             } else {
-                binding.pieChart.clear()
+                // BRAK DANYCH: Ukryj wykres (znika też brzydki napis), pokaż "Brak wydatków..."
+                binding.pieChart.visibility = View.GONE
+                binding.tvNoData.visibility = View.VISIBLE
             }
 
             updateTotalSumText(totalSum)
@@ -136,13 +144,11 @@ class StatsActivity : AppCompatActivity() {
     }
 
     private fun updateTotalSumText(sum: Double) {
-        // --- POPRAWKA WALUTY ---
         val appLocales = AppCompatDelegate.getApplicationLocales()
         val currentLocale = if (!appLocales.isEmpty) appLocales.get(0) else Locale.getDefault()
         val isPolish = currentLocale?.language == "pl"
         val formatLocale = if (isPolish) Locale("pl", "PL") else Locale.US
         val currencyFormat = NumberFormat.getCurrencyInstance(formatLocale)
-        // -----------------------
 
         binding.tvTotalExpenses.text = getString(R.string.total_summary, currencyFormat.format(sum))
     }

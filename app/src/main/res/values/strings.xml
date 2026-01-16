@@ -69,6 +69,7 @@
     <string name="title_history">Payment History</string>
     <string name="history_empty">No history yet</string>
     <string name="history_paid_on">Paid: %s</string>
+    <string name="msg_no_stats">No expenses this month</string>
 
     <string-array name="categories_array">
         <item>@string/cat_utilities</item>

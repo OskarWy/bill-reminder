@@ -70,6 +70,7 @@
     <string name="title_history">Historia Płatności</string>
     <string name="history_empty">Brak historii</string>
     <string name="history_paid_on">Opłacono: %s</string>
+    <string name="msg_no_stats">Brak wydatków w tym miesiącu</string>
 
     <string-array name="categories_array">
         <item>@string/cat_utilities</item>
