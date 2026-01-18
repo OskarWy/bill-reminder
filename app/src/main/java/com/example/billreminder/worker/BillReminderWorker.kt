@@ -46,30 +46,38 @@ class BillReminderWorker(context: Context, params: WorkerParameters) : Coroutine
     }
 
     private fun showNotification(id: Int, name: String, amount: Double) {
-        // Sprawdzenie uprawnień (wymagane od Android 13)
+        // Sprawdzenie uprawnień
         if (ActivityCompat.checkSelfPermission(applicationContext, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
             return
         }
 
-        // Kliknięcie w powiadomienie otwiera apkę
         val intent = Intent(applicationContext, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         }
         val pendingIntent = PendingIntent.getActivity(applicationContext, 0, intent, PendingIntent.FLAG_IMMUTABLE)
 
-        // Formatowanie waluty (tu używamy domyślnej systemowej, bo Worker działa w tle)
-        val currencyFormat = NumberFormat.getCurrencyInstance()
-        val formattedAmount = currencyFormat.format(amount)
+        // --- NAPRAWA WALUTY (USUWANIE KWADRATU) ---
+        // Zamiast NumberFormat (który daje twardą spację), robimy to ręcznie:
+
+        val isPolish = java.util.Locale.getDefault().language == "pl"
+
+        // Formatujemy liczbę do 2 miejsc po przecinku (np. 50.00)
+        val amountStr = String.format("%.2f", amount)
+
+        val formattedAmount = if (isPolish) {
+            "$amountStr zł" // Tu jest ZWYKŁA spacja, wyświetli się poprawnie
+        } else {
+            "$$amountStr"   // Dla angielskiego dajemy dolar z przodu
+        }
+        // -------------------------------------------
 
         val builder = NotificationCompat.Builder(applicationContext, "bill_channel_id")
-            // --- TU JEST ZMIANA NA PROFESJONALNĄ IKONĘ ---
             .setSmallIcon(R.drawable.ic_card_outlined)
-            // ---------------------------------------------
             .setContentTitle(applicationContext.getString(R.string.notification_title, name))
             .setContentText(applicationContext.getString(R.string.notification_content, formattedAmount))
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setContentIntent(pendingIntent)
-            .setAutoCancel(true) // Powiadomienie znika po kliknięciu
+            .setAutoCancel(true)
 
         NotificationManagerCompat.from(applicationContext).notify(id, builder.build())
     }
